@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <Ethernet.h>
+#include <P1AM.h>
 
 byte mac[] = {
   0x60, 0x52, 0xD0, 0x07, 0x40, 0xC5
@@ -13,7 +14,11 @@ uint8_t relay1State = 0;
 uint8_t relay2State = 0;
 
 void setup() {
-  uint8_t P1.init();
+
+  while (!P1.init()){ 
+    ; //Wait for Modules to Sign on   
+  }
+
   Ethernet.init(5);   // MKR ETH shield
 
   // Open serial communications and wait for port to open:
@@ -38,37 +43,34 @@ void setup() {
 
   // start the server
   server.begin();
-  Serial.print("server is at ");
-  Serial.println(Ethernet.localIP());
 }
 
-
 void loop() {
-  // listen for incoming clients
+  // Listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
     Serial.println("new client");
     while (client.connected()) {
-      if (client.available() == 2) {
+      if (client.available() >= 2) {
         uint8_t command = client.read();
         uint8_t state = client.read();
 
         switch (command) {
           case 0:
-            //null command
+            // Null command
             break;
           case 1:
-            //reset
+            // Reset
             break;
           case 2:
             client.write(relay1State);
             break;
           case 10:
             if (state == 0) {
-              P1.writeDiscrete(LOW,5,1); // Turn off slot 5 channel 1
+              P1.writeDiscrete(LOW, 5, 0); // Turn off slot 5 channel 1
               relay1State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH,5,1); // Turn on slot 5 channel 1
+              P1.writeDiscrete(HIGH, 5, 1); // Turn on slot 5 channel 1
               relay1State = 1;
             }
             break;
@@ -76,6 +78,8 @@ void loop() {
             Serial.println("Unknown command");
             break;
         }
+      }
+    }
     client.stop();
     Serial.println("client disconnected");
   }

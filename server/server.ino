@@ -10,21 +10,21 @@ IPAddress ip(192, 168, 0, 70);
 // Initialize the Ethernet server library
 EthernetServer server(69);
 
-uint8_t PBV1State = 0;
-uint8_t PBV2State = 0;
-uint8_t PBV3State = 0;
-uint8_t PBV4State = 0;
-uint8_t PBV5State = 0;
-uint8_t PBV6State = 0;
-uint8_t PBV7State = 0;
-uint8_t PBV8State = 0;
+int8_t PBV1State = 0;
+int8_t PBV2State = 0;
+int8_t PBV3State = 0;
+int8_t PBV4State = 0;
+int8_t PBV5State = 0;
+int8_t PBV6State = 0;
+int8_t PBV7State = 0;
+int8_t PBV8State = 0;
 
-uint8_t PMP1State = 0;
-uint8_t PMP2State = 0;
-uint8_t PMP3State = 0;
+int8_t PMP1State = 0;
+int8_t PMP2State = 0;
+int8_t PMP3State = 0;
 
-uint8_t IGN1State = 0;
-uint8_t IGN2State = 0;
+int8_t IGN1State = 0;
+int8_t IGN2State = 0;
 
 const char P1_04THM_CONFIG_1[] = { 0x40, 0x03, 0x60, 0x03, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 const char P1_04THM_CONFIG_2[] = { 0x40, 0x03, 0x60, 0x03, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -89,8 +89,48 @@ void loop() {
             // Reset (doesnt exist lol)
             break;
           case 2:
-            client.write(relay1State);
+            int TC1 = (int)(P1.readTemperature(1, 1) * 100);
+            int TC2 = (int)(P1.readTemperature(1, 2) * 100);
+            int TC3 = (int)(P1.readTemperature(1, 3) * 100);
+            int TC4 = (int)(P1.readTemperature(1, 4) * 100);
+            int TC5 = (int)(P1.readTemperature(2, 1) * 100);
+            int TC6 = (int)(P1.readTemperature(2, 2) * 100);
+            int TC7 = (int)(P1.readTemperature(2, 3) * 100);
+            int TC8 = (int)(P1.readTemperature(2, 4) * 100);
+            int TC9 = (int)(P1.readTemperature(3, 1) * 100);
+
+            int LC1 = (int)(P1.readTemperature(3, 2) * 100);
+            int LC2 = (int)(P1.readTemperature(3, 3) * 100);
+
+            int PT1_counts = P1.readAnalog(4, 1);
+            int PT2_counts = P1.readAnalog(4, 2);
+            int PT3_counts = P1.readAnalog(4, 3);
+            int PT4_counts = P1.readAnalog(4, 4);
+            int PT5_counts = P1.readAnalog(4, 5);
+            int PT6_counts = P1.readAnalog(4, 6);
+            int PT15_counts = P1.readAnalog(4, 7);
+            int PT16_counts = P1.readAnalog(4, 8);
+
+            int PT1_pressure = (int)(((float)PT15_counts/8191.0) * 100);
+            int PT2_pressure = (int)(((float)PT16_counts/8191.0) * 100);
+            int PT3_pressure = (int)(((float)PT1_counts/8191.0) * 100);
+            int PT4_pressure = (int)(((float)PT2_counts/8191.0) * 100);
+            int PT5_pressure = (int)(((float)PT3_counts/8191.0) * 100);
+            int PT6_pressure = (int)(((float)PT4_counts/8191.0) * 100);
+            int PT15_pressure = (int)(((float)PT5_counts/8191.0) * 100);
+            int PT16_pressure = (int)(((float)PT6_counts/8191.0) * 100);
+
+            int data[] = {
+              TC1, TC2, TC3, TC4, TC5, TC6, TC7, TC8, TC9, LC1, LC2,
+              PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT6_pressure, PT15_pressure, PT16_pressure,
+              PBV1State, PBV2State, PBV3State, PBV4State, PBV5State, PBV6State, PBV7State, PBV8State,
+              PMP1State, PMP2State, PMP3State,
+              IGN1State, IGN2State
+            };
+
+            client.write((uint8_t*)data, sizeof(data));
             break;
+
           case 10: // PBV1
             if (state == 0) {
               P1.writeDiscrete(LOW, 5, 1); // Turn off slot 5 channel 1
@@ -100,6 +140,7 @@ void loop() {
               PBV1State = 1;
             }
             break;
+
           case 11: // PBV2
             if (state == 0) {
               P1.writeDiscrete(LOW, 5, 2); // Turn off slot 5 channel 2
@@ -109,6 +150,7 @@ void loop() {
               PBV2State = 1;
             }
             break;
+
           case 12: // PBV3
             if (state == 0) {
               P1.writeDiscrete(LOW, 5, 3); // Turn off slot 5 channel 3
@@ -118,6 +160,7 @@ void loop() {
               PBV3State = 1;
             }
             break;
+
           case 13: // PBV4
             if (state == 0) {
               P1.writeDiscrete(LOW, 5, 4); // Turn off slot 5 channel 4
@@ -127,6 +170,7 @@ void loop() {
               PBV4State = 1;
             }
             break;
+
           case 14: // PBV5
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 1); // Turn off slot 6 channel 1
@@ -136,6 +180,7 @@ void loop() {
               PBV5State = 1;
             }
             break;
+
           case 15: // PBV6
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 2); // Turn off slot 6 channel 2
@@ -145,6 +190,7 @@ void loop() {
               PBV6State = 1;
             }
             break;
+
           case 16: // PBV7
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 3); // Turn off slot 6 channel 3
@@ -154,6 +200,7 @@ void loop() {
               PBV7State = 1;
             }
             break;
+
           case 17: // PBV8
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 4); // Turn off slot 6 channel 4
@@ -163,6 +210,7 @@ void loop() {
               PBV8State = 1;
             }
             break;
+
           case 18: // PMP1
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 5); // Turn off slot 6 channel 5
@@ -172,6 +220,7 @@ void loop() {
               PMP1State = 1;
             }
             break;
+
           case 19: // PMP2
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 6); // Turn off slot 6 channel 6
@@ -181,6 +230,7 @@ void loop() {
               PMP2State = 1;
             }
             break;
+
           case 20: // PMP3
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 7); // Turn off slot 6 channel 7
@@ -190,6 +240,7 @@ void loop() {
               PMP3State = 1;
             }
             break;
+
           case 21: // IGN1
             if (state == 0) {
               P1.writeDiscrete(LOW, 7, 1); // Turn off slot 7 channel 1
@@ -199,6 +250,7 @@ void loop() {
               IGN1State = 1;
             }
             break;
+
           case 22: // IGN2
             if (state == 0) {
               P1.writeDiscrete(LOW, 7, 2); // Turn off slot 7 channel 2
@@ -208,6 +260,7 @@ void loop() {
               IGN2State = 1;
             }
             break;
+            
           default:
             client.write("Unknown command");
             break;

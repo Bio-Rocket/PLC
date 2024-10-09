@@ -36,9 +36,6 @@ const char P1_08ADL_2_CONFIG[] = { 0x40, 0x07 };
 const char P1_04ADL_2_CONFIG[] = { 0x40, 0x00 };
 
 void setup() {
-
-  // TODO: Assert Prefire State
-
   while (!P1.init()){ 
     ; //Wait for Modules to Sign on   
   }
@@ -51,6 +48,22 @@ void setup() {
 
   P1.configureModule(P1_08ADL_2_CONFIG, 4)
   P1.configureModule(P1_04ADL_2_CONFIG, 5)
+
+  // Assert all modules unpowered
+  P1.writeDiscrete(LOW, 5, 1);
+  P1.writeDiscrete(LOW, 5, 2);
+  P1.writeDiscrete(LOW, 5, 3);
+  P1.writeDiscrete(LOW, 5, 4);
+  P1.writeDiscrete(LOW, 6, 1);
+  P1.writeDiscrete(LOW, 6, 2);
+  P1.writeDiscrete(LOW, 6, 3);
+  P1.writeDiscrete(LOW, 6, 4);
+  P1.writeDiscrete(LOW, 6, 5);
+  P1.,writeDiscrete(LOW, 6, 6);
+  P1.writeDiscrete(LOW, 6, 7);
+  P1.writeDiscrete(LOW, 7, 1);
+  P1.writeDiscrete(LOW, 7, 2);
+  P1.writeDiscrete(LOW, 7, 3);
 
   // Open serial communications and wait for port to open:
   // Serial.begin(9600);
@@ -90,9 +103,6 @@ void loop() {
             // Null command
             break;
           case 1:
-            // Reset (doesnt exist lol)
-            break;
-          case 2:
             int16_t TC1 = (int)(P1.readTemperature(1, 1) * 100);
             int16_t TC2 = (int)(P1.readTemperature(1, 2) * 100);
             int16_t TC3 = (int)(P1.readTemperature(1, 3) * 100);

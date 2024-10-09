@@ -35,6 +35,8 @@ const char P1_04ADL_2_CONFIG[] = { 0x40, 0x00 };
 
 void setup() {
 
+  // TODO: Assert Prefire State
+
   while (!P1.init()){ 
     ; //Wait for Modules to Sign on   
   }
@@ -89,18 +91,18 @@ void loop() {
             // Reset (doesnt exist lol)
             break;
           case 2:
-            int TC1 = (int)(P1.readTemperature(1, 1) * 100);
-            int TC2 = (int)(P1.readTemperature(1, 2) * 100);
-            int TC3 = (int)(P1.readTemperature(1, 3) * 100);
-            int TC4 = (int)(P1.readTemperature(1, 4) * 100);
-            int TC5 = (int)(P1.readTemperature(2, 1) * 100);
-            int TC6 = (int)(P1.readTemperature(2, 2) * 100);
-            int TC7 = (int)(P1.readTemperature(2, 3) * 100);
-            int TC8 = (int)(P1.readTemperature(2, 4) * 100);
-            int TC9 = (int)(P1.readTemperature(3, 1) * 100);
+            int16_t TC1 = (int)(P1.readTemperature(1, 1) * 100);
+            int16_t TC2 = (int)(P1.readTemperature(1, 2) * 100);
+            int16_t TC3 = (int)(P1.readTemperature(1, 3) * 100);
+            int16_t TC4 = (int)(P1.readTemperature(1, 4) * 100);
+            int16_t TC5 = (int)(P1.readTemperature(2, 1) * 100);
+            int16_t TC6 = (int)(P1.readTemperature(2, 2) * 100);
+            int16_t TC7 = (int)(P1.readTemperature(2, 3) * 100);
+            int16_t TC8 = (int)(P1.readTemperature(2, 4) * 100);
+            int16_t TC9 = (int)(P1.readTemperature(3, 1) * 100);
 
-            int LC1 = (int)(P1.readTemperature(3, 2) * 100);
-            int LC2 = (int)(P1.readTemperature(3, 3) * 100);
+            int16_t LC1 = (int)(P1.readTemperature(3, 2) * 100);
+            int16_t LC2 = (int)(P1.readTemperature(3, 3) * 100);
 
             int PT1_counts = P1.readAnalog(4, 1);
             int PT2_counts = P1.readAnalog(4, 2);
@@ -111,24 +113,24 @@ void loop() {
             int PT15_counts = P1.readAnalog(4, 7);
             int PT16_counts = P1.readAnalog(4, 8);
 
-            int PT1_pressure = (int)(((float)PT15_counts/8191.0) * 100);
-            int PT2_pressure = (int)(((float)PT16_counts/8191.0) * 100);
-            int PT3_pressure = (int)(((float)PT1_counts/8191.0) * 100);
-            int PT4_pressure = (int)(((float)PT2_counts/8191.0) * 100);
-            int PT5_pressure = (int)(((float)PT3_counts/8191.0) * 100);
-            int PT6_pressure = (int)(((float)PT4_counts/8191.0) * 100);
-            int PT15_pressure = (int)(((float)PT5_counts/8191.0) * 100);
-            int PT16_pressure = (int)(((float)PT6_counts/8191.0) * 100);
+            int16_t PT1_pressure = (int)(((float)PT15_counts/8191.0) * 10);
+            int16_t PT2_pressure = (int)(((float)PT16_counts/8191.0) * 10);
+            int16_t PT3_pressure = (int)(((float)PT1_counts/8191.0) * 10);
+            int16_t PT4_pressure = (int)(((float)PT2_counts/8191.0) * 10);
+            int16_t PT5_pressure = (int)(((float)PT3_counts/8191.0) * 10);
+            int16_t PT6_pressure = (int)(((float)PT4_counts/8191.0) * 10);
+            int16_t PT15_pressure = (int)(((float)PT5_counts/8191.0) * 10);
+            int16_t PT16_pressure = (int)(((float)PT6_counts/8191.0) * 10);
 
-            int data[] = {
-              TC1, TC2, TC3, TC4, TC5, TC6, TC7, TC8, TC9, LC1, LC2,
-              PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT6_pressure, PT15_pressure, PT16_pressure,
-              PBV1State, PBV2State, PBV3State, PBV4State, PBV5State, PBV6State, PBV7State, PBV8State,
+            int16_t TcData[] = {TC1, TC2, TC3, TC4, TC5, TC6, TC7, TC8, TC9, LC1, LC2}
+            int16_t PtData[] = {PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT6_pressure, PT15_pressure, PT16_pressure}
+            int8_t valveData[] = {PBV1State, PBV2State, PBV3State, PBV4State, PBV5State, PBV6State, PBV7State, PBV8State,
               PMP1State, PMP2State, PMP3State,
-              IGN1State, IGN2State
-            };
+              IGN1State, IGN2State}
 
-            client.write((uint8_t*)data, sizeof(data));
+            client.write((uint8_t*)TcData, sizeof(TcData));
+            client.write((uint8_t*)PtData, sizeof(PtData));
+            client.write((uint8_t*)valveData, sizeof(valveData));
             break;
 
           case 10: // PBV1

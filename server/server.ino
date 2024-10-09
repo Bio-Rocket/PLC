@@ -26,6 +26,8 @@ int8_t PMP3State = 0;
 int8_t IGN1State = 0;
 int8_t IGN2State = 0;
 
+int8_t HeaterState = 0;
+
 const char P1_04THM_CONFIG_1[] = { 0x40, 0x03, 0x60, 0x03, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 const char P1_04THM_CONFIG_2[] = { 0x40, 0x03, 0x60, 0x03, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 const char P1_04THM_CONFIG_3[] = { 0x40, 0x02, 0x60, 0x05, 0x21, 0x05, 0x22, 0x09, 0x23, 0x09, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -126,7 +128,8 @@ void loop() {
             int16_t PtData[] = {PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT6_pressure, PT15_pressure, PT16_pressure}
             int8_t valveData[] = {PBV1State, PBV2State, PBV3State, PBV4State, PBV5State, PBV6State, PBV7State, PBV8State,
               PMP1State, PMP2State, PMP3State,
-              IGN1State, IGN2State}
+              IGN1State, IGN2State, HeaterState
+            };
 
             client.write((uint8_t*)TcData, sizeof(TcData));
             client.write((uint8_t*)PtData, sizeof(PtData));
@@ -260,6 +263,16 @@ void loop() {
             } else if (state == 1) {
               P1.writeDiscrete(HIGH, 7, 2); // Turn on slot 7 channel 2
               IGN2State = 1;
+            }
+            break;
+
+          case 23: // Heater
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 3); // Turn off slot 7 channel 3
+              HeaterState = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 3); // Turn on slot 7 channel 3
+              HeaterState = 1;
             }
             break;
             

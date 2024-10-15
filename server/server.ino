@@ -59,7 +59,7 @@ void setup() {
   P1.writeDiscrete(LOW, 6, 3);
   P1.writeDiscrete(LOW, 6, 4);
   P1.writeDiscrete(LOW, 6, 5);
-  P1.,writeDiscrete(LOW, 6, 6);
+  P1.writeDiscrete(LOW, 6, 6);
   P1.writeDiscrete(LOW, 6, 7);
   P1.writeDiscrete(LOW, 7, 1);
   P1.writeDiscrete(LOW, 7, 2);

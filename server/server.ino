@@ -10,7 +10,7 @@ IPAddress ip(192, 168, 0, 70);
 // Initialize the Ethernet server library
 EthernetServer server(69);
 
-int8_t PBV1State = 0;
+uint8_t PBV1State = 0;
 
 void setup() {
   while (!P1.init()){ 

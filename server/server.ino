@@ -30,7 +30,7 @@ int8_t HeaterState = 0;
 
 int PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts, PT6_counts, PT15_counts, PT16_counts;
 int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT6_pressure, PT15_pressure, PT16_pressure;
-int16_t thermocouple1, thermocouple2, thermocouple3, thermocouple4, thermocouple5, thermocouple6, thermocouple7, thermocouple8, thermocouple9 loadCell1, leadCell2;
+int16_t thermocouple1, thermocouple2, thermocouple3, thermocouple4, thermocouple5, thermocouple6, thermocouple7, thermocouple8, thermocouple9, loadCell1, loadCell2;
 int16_t PtData[8];
 int16_t TcData[11];
 int8_t valveData[14];

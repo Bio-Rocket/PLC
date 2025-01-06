@@ -18,29 +18,42 @@ int8_t PBV5State = 0;
 int8_t PBV6State = 0;
 int8_t PBV7State = 0;
 int8_t PBV8State = 0;
+int8_t PBV9State = 0;
+int8_t PBV10State = 0;
+int8_t PBV11State = 0;
 
-int8_t PMP1State = 0;
-int8_t PMP2State = 0;
+int8_t SOL1State = 0;
+int8_t SOL2State = 0;
+int8_t SOL3State = 0;
+int8_t SOL4State = 0;
+int8_t SOL5State = 0;
+int8_t SOL6State = 0;
+int8_t SOL7State = 0;
+int8_t SOL8State = 0;
+int8_t SOL9State = 0;
+
+int8_t HeaterState = 0;
+
 int8_t PMP3State = 0;
 
 int8_t IGN1State = 0;
 int8_t IGN2State = 0;
 
-int8_t HeaterState = 0;
+int16_t PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts, PT13_counts, PT14_counts;
+int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT13_pressure, PT14_pressure;
+int16_t TC1, TC2, TC3, TC4, TC5, TC6, TC7, TC8, TC9;
+int16_t LC1, LC2, LC7;
+int16_t PtData[7];
+int16_t TcData[9];
+int16_t LcData[3];
+int8_t valveData[24];
 
-int PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts, PT6_counts, PT15_counts, PT16_counts;
-int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT6_pressure, PT15_pressure, PT16_pressure;
-int16_t thermocouple1, thermocouple2, thermocouple3, thermocouple4, thermocouple5, thermocouple6, thermocouple7, thermocouple8, thermocouple9, loadCell1, loadCell2;
-int16_t PtData[8];
-int16_t TcData[11];
-int8_t valveData[14];
-
+// TODO: UPDATE CONFIG FOR TC MODULES BASED ON TC TYPE
 const char P1_04THM_CONFIG_1[] = { 0x40, 0x03, 0x60, 0x03, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 const char P1_04THM_CONFIG_2[] = { 0x40, 0x03, 0x60, 0x03, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 const char P1_04THM_CONFIG_3[] = { 0x40, 0x02, 0x60, 0x05, 0x21, 0x05, 0x22, 0x09, 0x23, 0x09, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-const char P1_08ADL_2_CONFIG[] = { 0x40, 0x07 };
-const char P1_04ADL_2_CONFIG[] = { 0x40, 0x00 };
+const char P1_08ADL_2_CONFIG[] = { 0x40, 0x06 };
 
 void setup() {
   while (!P1.init()){ 
@@ -52,15 +65,25 @@ void setup() {
   P1.configureModule(P1_04THM_CONFIG_1, 1);
   P1.configureModule(P1_04THM_CONFIG_2, 2);
   P1.configureModule(P1_04THM_CONFIG_3, 3);
-
   P1.configureModule(P1_08ADL_2_CONFIG, 4);
-  P1.configureModule(P1_04ADL_2_CONFIG, 5);
 
   // Assert all modules unpowered
+  P1.writeDiscrete(LOW, 5, 1);
+  P1.writeDiscrete(LOW, 5, 2);
+  P1.writeDiscrete(LOW, 5, 3);
+  P1.writeDiscrete(LOW, 5, 4);
+  P1.writeDiscrete(LOW, 5, 5);
+  P1.writeDiscrete(LOW, 5, 6);
+  P1.writeDiscrete(LOW, 5, 7);
+  P1.writeDiscrete(LOW, 5, 8);
   P1.writeDiscrete(LOW, 6, 1);
   P1.writeDiscrete(LOW, 6, 2);
   P1.writeDiscrete(LOW, 6, 3);
   P1.writeDiscrete(LOW, 6, 4);
+  P1.writeDiscrete(LOW, 6, 5);
+  P1.writeDiscrete(LOW, 6, 6);
+  P1.writeDiscrete(LOW, 6, 7);
+  P1.writeDiscrete(LOW, 6, 8);
   P1.writeDiscrete(LOW, 7, 1);
   P1.writeDiscrete(LOW, 7, 2);
   P1.writeDiscrete(LOW, 7, 3);
@@ -68,9 +91,7 @@ void setup() {
   P1.writeDiscrete(LOW, 7, 5);
   P1.writeDiscrete(LOW, 7, 6);
   P1.writeDiscrete(LOW, 7, 7);
-  P1.writeDiscrete(LOW, 8, 1);
-  P1.writeDiscrete(LOW, 8, 2);
-  P1.writeDiscrete(LOW, 8, 3);
+  P1.writeDiscrete(LOW, 7, 8);
 
   // Open serial communications and wait for port to open:
   // Serial.begin(9600);
@@ -111,57 +132,57 @@ void loop() {
             // Null command
             break;
           case 1:
-            thermocouple1 = (int)(P1.readTemperature(1, 1) * 100);
-            thermocouple2 = (int)(P1.readTemperature(1, 2) * 100);
-            thermocouple3 = (int)(P1.readTemperature(1, 3) * 100);
-            thermocouple4 = (int)(P1.readTemperature(1, 4) * 100);
-            thermocouple5 = (int)(P1.readTemperature(2, 1) * 100);
-            thermocouple6 = (int)(P1.readTemperature(2, 2) * 100);
-            thermocouple7 = (int)(P1.readTemperature(2, 3) * 100);
-            thermocouple8 = (int)(P1.readTemperature(2, 4) * 100);
-            thermocouple9 = (int)(P1.readTemperature(3, 1) * 100);
+            TC1 = (int)(P1.readTemperature(1, 1) * 100);
+            TC2 = (int)(P1.readTemperature(1, 2) * 100);
+            TC3 = (int)(P1.readTemperature(1, 3) * 100);
+            TC4 = (int)(P1.readTemperature(1, 4) * 100);
+            TC5 = (int)(P1.readTemperature(2, 1) * 100);
+            TC6 = (int)(P1.readTemperature(2, 2) * 100);
+            TC7 = (int)(P1.readTemperature(2, 3) * 100);
+            TC8 = (int)(P1.readTemperature(2, 4) * 100);
+            TC9 = (int)(P1.readTemperature(3, 1) * 100);
 
-            loadCell1 = (int)(P1.readTemperature(3, 2) * 100);
-            loadCell2 = (int)(P1.readTemperature(3, 3) * 100);
+            LC1 = (int)(P1.readTemperature(3, 2) * 100);
+            LC2 = (int)(P1.readTemperature(3, 3) * 100);
+            LC7 = (int)(P1.readTemperature(3, 4) * 100);
 
             PT1_counts = P1.readAnalog(4, 1);
             PT2_counts = P1.readAnalog(4, 2);
             PT3_counts = P1.readAnalog(4, 3);
             PT4_counts = P1.readAnalog(4, 4);
             PT5_counts = P1.readAnalog(4, 5);
-            PT6_counts = P1.readAnalog(4, 6);
-            PT15_counts = P1.readAnalog(4, 7);
-            PT16_counts = P1.readAnalog(4, 8);
+            PT13_counts = P1.readAnalog(4, 6);
+            PT14_counts = P1.readAnalog(4, 7);
 
-            PT1_pressure = (int)(((float)PT15_counts/8191.0) * 10);
-            PT2_pressure = (int)(((float)PT16_counts/8191.0) * 10);
-            PT3_pressure = (int)(((float)PT1_counts/8191.0) * 10);
-            PT4_pressure = (int)(((float)PT2_counts/8191.0) * 10);
-            PT5_pressure = (int)(((float)PT3_counts/8191.0) * 10);
-            PT6_pressure = (int)(((float)PT4_counts/8191.0) * 10);
-            PT15_pressure = (int)(((float)PT5_counts/8191.0) * 10);
-            PT16_pressure = (int)(((float)PT6_counts/8191.0) * 10);
+            PT1 = (int)(((float)PT1_counts/8191.0) * 10);
+            PT2 = (int)(((float)PT2_counts/8191.0) * 10);
+            PT3 = (int)(((float)PT3_counts/8191.0) * 10);
+            PT4 = (int)(((float)PT4_counts/8191.0) * 10);
+            PT5 = (int)(((float)PT5_counts/8191.0) * 10);
+            PT13 = (int)(((float)PT13_counts/8191.0) * 10);
+            PT14 = (int)(((float)PT14_counts/8191.0) * 10);
 
-            PtData[0] = PT1_pressure;
-            PtData[1] = PT2_pressure;
-            PtData[2] = PT3_pressure;
-            PtData[3] = PT4_pressure;
-            PtData[4] = PT5_pressure;
-            PtData[5] = PT6_pressure;
-            PtData[6] = PT15_pressure;
-            PtData[7] = PT16_pressure;
+            TcData[0] = TC1;
+            TcData[1] = TC2;
+            TcData[2] = TC3;
+            TcData[3] = TC4;
+            TcData[4] = TC5;
+            TcData[5] = TC6;
+            TcData[6] = TC7;
+            TcData[7] = TC8;
+            TcData[8] = TC9;
 
-            TcData[0] = thermocouple1;
-            TcData[1] = thermocouple2;
-            TcData[2] = thermocouple3;
-            TcData[3] = thermocouple4;
-            TcData[4] = thermocouple5;
-            TcData[5] = thermocouple6;
-            TcData[6] = thermocouple7;
-            TcData[7] = thermocouple8;
-            TcData[8] = thermocouple9;
-            TcData[9] = loadCell1;
-            TcData[10] = loadCell2;
+            LcData[0] = LC1;
+            LcData[1] = LC2;
+            LcData[2] = LC7;
+
+            PtData[0] = PT1;
+            PtData[1] = PT2;
+            PtData[2] = PT3;
+            PtData[3] = PT4;
+            PtData[4] = PT5;
+            PtData[5] = PT13;
+            PtData[6] = PT14;
 
             valveData[0] = PBV1State;
             valveData[1] = PBV2State;
@@ -171,155 +192,266 @@ void loop() {
             valveData[5] = PBV6State;
             valveData[6] = PBV7State;
             valveData[7] = PBV8State;
-            valveData[8] = PMP1State;
-            valveData[9] = PMP2State;
-            valveData[10] = PMP3State;
-            valveData[11] = IGN1State;
-            valveData[12] = IGN2State;
-            valveData[13] = HeaterState;
+            valveData[8] = PBV9State;
+            valveData[9] = PBV10State;
+            valveData[10] = PBV11State;
+            valveData[11] = SOL1State;
+            valveData[12] = SOL2State;
+            valveData[13] = SOL3State;
+            valveData[14] = SOL4State;
+            valveData[15] = SOL5State;
+            valveData[16] = SOL6State;
+            valveData[17] = SOL7State;
+            valveData[18] = SOL8State;
+            valveData[19] = SOL9State;
+            valveData[20] = HeaterState;
+            valveData[21] = PMP3State;
+            valveData[22] = IGN1State;
+            valveData[23] = IGN2State;
 
             client.write((uint8_t*)TcData, sizeof(TcData));
+            client.write((uint8_t*)LcData, sizeof(LcData));
             client.write((uint8_t*)PtData, sizeof(PtData));
             client.write((uint8_t*)valveData, sizeof(valveData));
             break;
 
           case 10: // PBV1
             if (state == 0) {
-              P1.writeDiscrete(LOW, 6, 1); // Turn off slot 6 channel 1
+              P1.writeDiscrete(LOW, 5, 1);
               PBV1State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 6, 1); // Turn on slot 6 channel 1
+              P1.writeDiscrete(HIGH, 5, 1);
               PBV1State = 1;
             }
             break;
 
           case 11: // PBV2
             if (state == 0) {
-              P1.writeDiscrete(LOW, 6, 2); // Turn off slot 6 channel 2
+              P1.writeDiscrete(LOW, 5, 2);
               PBV2State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 6, 2); // Turn on slot 6 channel 2
+              P1.writeDiscrete(HIGH, 5, 2);
               PBV2State = 1;
             }
             break;
 
           case 12: // PBV3
             if (state == 0) {
-              P1.writeDiscrete(LOW, 6, 3); // Turn off slot 6 channel 3
+              P1.writeDiscrete(LOW, 5, 3);
               PBV3State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 6, 3); // Turn on slot 6 channel 3
+              P1.writeDiscrete(HIGH, 5, 3);
               PBV3State = 1;
             }
             break;
 
           case 13: // PBV4
             if (state == 0) {
-              P1.writeDiscrete(LOW, 6, 4); // Turn off slot 6 channel 4
+              P1.writeDiscrete(LOW, 5, 4);
               PBV4State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 6, 4); // Turn on slot 6 channel 4
+              P1.writeDiscrete(HIGH, 5, 4);
               PBV4State = 1;
             }
             break;
 
           case 14: // PBV5
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 1); // Turn off slot 7 channel 1
+              P1.writeDiscrete(LOW, 5, 5);
               PBV5State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 1); // Turn on slot 7 channel 1
+              P1.writeDiscrete(HIGH, 5, 5);
               PBV5State = 1;
             }
             break;
 
           case 15: // PBV6
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 2); // Turn off slot 7 channel 2
+              P1.writeDiscrete(LOW, 5, 6);
               PBV6State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 2); // Turn on slot 7 channel 2
+              P1.writeDiscrete(HIGH, 5, 6);
               PBV6State = 1;
             }
             break;
 
           case 16: // PBV7
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 3); // Turn off slot 7 channel 3
+              P1.writeDiscrete(LOW, 5, 7);
               PBV7State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 3); // Turn on slot 7 channel 3
+              P1.writeDiscrete(HIGH, 5, 7);
               PBV7State = 1;
             }
             break;
 
           case 17: // PBV8
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 4); // Turn off slot 7 channel 4
+              P1.writeDiscrete(LOW, 5, 8);
               PBV8State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 4); // Turn on slot 7 channel 4
+              P1.writeDiscrete(HIGH, 5, 8);
               PBV8State = 1;
             }
             break;
 
-          case 18: // PMP1
+          case 18: // PBV9
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 5); // Turn off slot 7 channel 5
+              P1.writeDiscrete(LOW, 6, 1);
               PMP1State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 5); // Turn on slot 7 channel 5
+              P1.writeDiscrete(HIGH, 6, 1);
               PMP1State = 1;
             }
             break;
 
-          case 19: // PMP2
+          case 19: // PBV10
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 6); // Turn off slot 7 channel 6
+              P1.writeDiscrete(LOW, 6, 2);
               PMP2State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 6); // Turn on slot 7 channel 6
+              P1.writeDiscrete(HIGH, 6, 2);
               PMP2State = 1;
             }
             break;
 
-          case 20: // PMP3
+          case 20: // PBV11
             if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 7); // Turn off slot 7 channel 7
+              P1.writeDiscrete(LOW, 6, 3);
               PMP3State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 7); // Turn on slot 7 channel 7
+              P1.writeDiscrete(HIGH, 6, 3);
               PMP3State = 1;
             }
             break;
 
-          case 21: // IGN1
+          case 21: // SOL1
             if (state == 0) {
-              P1.writeDiscrete(LOW, 8, 1); // Turn off slot 8 channel 1
+              P1.writeDiscrete(LOW, 6, 4);
               IGN1State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 8, 1); // Turn on slot 8 channel 1
+              P1.writeDiscrete(HIGH, 6, 4);
               IGN1State = 1;
             }
             break;
 
-          case 22: // IGN2
+          case 22: // SOL2
             if (state == 0) {
-              P1.writeDiscrete(LOW, 8, 2); // Turn off slot 8 channel 2
+              P1.writeDiscrete(LOW, 6, 5);
               IGN2State = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 8, 2); // Turn on slot 8 channel 2
+              P1.writeDiscrete(HIGH, 6, 5);
               IGN2State = 1;
             }
             break;
 
-          case 23: // Heater
+          case 23: // SOL3
             if (state == 0) {
-              P1.writeDiscrete(LOW, 8, 3); // Turn off slot 8 channel 3
+              P1.writeDiscrete(LOW, 6, 6);
               HeaterState = 0;
             } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 8, 3); // Turn on slot 8 channel 3
+              P1.writeDiscrete(HIGH, 6, 6);
               HeaterState = 1;
+            }
+            break;
+          
+          case 24: // SOL4
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 6, 7);
+              SOL1State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 6, 7);
+              SOL1State = 1;
+            }
+            break;
+
+          case 25: // SOL5
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 6, 8);
+              SOL2State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 6, 8);
+              SOL2State = 1;
+            }
+            break;
+
+          case 26: // SOL6
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 1);
+              SOL3State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 1);
+              SOL3State = 1;
+            }
+            break;
+
+          case 27: // SOL7
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 2);
+              SOL4State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 2);
+              SOL4State = 1;
+            }
+            break;
+
+          case 28: // SOL8
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 3);
+              SOL5State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 3);
+              SOL5State = 1;
+            }
+            break;  
+
+          case 29: // SOL9
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 4);
+              SOL6State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 4);
+              SOL6State = 1;
+            }
+            break;
+
+          case 30: // Heater
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 5);
+              SOL7State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 5);
+              SOL7State = 1;
+            }
+            break;
+
+          case 31: // PMP3
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 6);
+              SOL8State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 6);
+              SOL8State = 1;
+            }
+            break;
+
+          case 32: // IGN1
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 7);
+              SOL9State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 7);
+              SOL9State = 1;
+            }
+            break;
+
+          case 33: // IGN2
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 8);
+              SOL10State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 8);
+              SOL10State = 1;
             }
             break;
             

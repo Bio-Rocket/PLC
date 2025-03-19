@@ -153,13 +153,13 @@ void loop() {
             PT13_counts = P1.readAnalog(4, 6);
             PT14_counts = P1.readAnalog(4, 7);
 
-            PT1_pressure = (int)(((float)PT1_counts/8191.0) * 10);
-            PT2_pressure = (int)(((float)PT2_counts/8191.0) * 10);
-            PT3_pressure = (int)(((float)PT3_counts/8191.0) * 10);
-            PT4_pressure = (int)(((float)PT4_counts/8191.0) * 10);
-            PT5_pressure = (int)(((float)PT5_counts/8191.0) * 10);
-            PT13_pressure = (int)(((float)PT13_counts/8191.0) * 10);
-            PT14_pressure = (int)(((float)PT14_counts/8191.0) * 10);
+            PT1_pressure = (int16_t)(1000 * (10 * ((float)PT1_counts/8191)));
+            PT2_pressure = (int16_t)(1000 * (10 * ((float)PT2_counts/8191)));
+            PT3_pressure = (int16_t)(1000 * (10 * ((float)PT3_counts/8191)));
+            PT4_pressure = (int16_t)(1000 * (10 * ((float)PT4_counts/8191)));
+            PT5_pressure = (int16_t)(1000 * (10 * ((float)PT5_counts/8191)));
+            PT13_pressure = (int16_t)(1000 * (10 * ((float)PT13_counts/8191)));
+            PT14_pressure = (int16_t)(1000 * (10 * ((float)PT14_counts/8191)));
 
             TcData[0] = TC1_data;
             TcData[1] = TC2_data;

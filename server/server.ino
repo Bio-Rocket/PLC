@@ -5,7 +5,7 @@
   byte mac[] = {
     0x60, 0x52, 0xD0, 0x07, 0x40, 0xC5
   };
-  IPAddress ip(192, 168, 0, 70);
+  IPAddress ip(192, 168, 8, 70);
 
   // Initialize the Ethernet server library
   EthernetServer server(69);
@@ -27,14 +27,6 @@
   int8_t SOL3State = 0;
   int8_t SOL4State = 0;
   int8_t SOL5State = 0;
-  int8_t SOL6State = 0;
-  int8_t SOL7State = 0;
-  int8_t SOL8State = 0;
-  int8_t SOL9State = 0;
-
-  int8_t HeaterState = 0;
-
-  int8_t PMP3State = 0;
 
   int8_t IGN1State = 0;
   int8_t IGN2State = 0;
@@ -46,10 +38,10 @@
   int16_t PtData[7];
   int16_t TcData[9];
   int16_t LcData[3];
-  int8_t valveData[24];
+  int8_t valveData[18];
 
-  const char P1_04THM_CONFIG_1[] = { 0x40, 0x03, 0x60, 0x01, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-  const char P1_04THM_CONFIG_2[] = { 0x40, 0x03, 0x60, 0x01, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  const char P1_04THM_CONFIG_1[] = { 0x40, 0x03, 0x60, 0x01, 0x21, 0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  const char P1_04THM_CONFIG_2[] = { 0x40, 0x03, 0x60, 0x01, 0x21, 0x01, 0x22, 0x01, 0x23, 0x01, 0x24, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   const char P1_04THM_CONFIG_3[] = { 0x40, 0x03, 0x60, 0x01, 0x21, 0x01, 0x22, 0x0a, 0x23, 0x0a, 0x24, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
   const char P1_08ADL_2_CONFIG[] = { 0x40, 0x06 };
@@ -103,13 +95,13 @@ void setup() {
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    //Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
     while (true) {
       delay(1); // do nothing, no point running without Ethernet hardware
     }
   }
   if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
+    //Serial.println("Ethernet cable is not connected.");
   }
 
   // start the server
@@ -121,10 +113,17 @@ void loop() {
 
   EthernetClient client = server.available();
   if (client) {
+    unsigned long startTime = millis();
     while (client.connected()) {
+      if (millis() - startTime > 5000) {
+        break;
+      }
       if (client.available() >= 2) {
+        startTime = millis();
         uint8_t command = client.read();
         uint8_t state = client.read();
+        //Serial.println(command);
+        //Serial.println(state);
 
         switch (command) {
           case 0:
@@ -141,9 +140,9 @@ void loop() {
             TC8_data = (int)(P1.readTemperature(2, 4) * 100);
             TC9_data = (int)(P1.readTemperature(3, 1) * 100);
 
-            LC1 = (int)(P1.readTemperature(3, 2) * 100);
-            LC2 = (int)(P1.readTemperature(3, 3) * 100);
-            LC7 = (int)(P1.readTemperature(3, 4) * 100);
+            LC1 = (int)(P1.readTemperature(3, 2) * 10000);
+            LC2 = (int)(P1.readTemperature(3, 3) * 10000);
+            LC7 = (int)(P1.readTemperature(3, 4) * 10000);
 
             PT1_counts = P1.readAnalog(4, 1);
             PT2_counts = P1.readAnalog(4, 2);
@@ -199,14 +198,8 @@ void loop() {
             valveData[13] = SOL3State;
             valveData[14] = SOL4State;
             valveData[15] = SOL5State;
-            valveData[16] = SOL6State;
-            valveData[17] = SOL7State;
-            valveData[18] = SOL8State;
-            valveData[19] = SOL9State;
-            valveData[20] = HeaterState;
-            valveData[21] = PMP3State;
-            valveData[22] = IGN1State;
-            valveData[23] = IGN2State;
+            valveData[16] = IGN1State;
+            valveData[17] = IGN2State;
 
             client.write((uint8_t*)TcData, sizeof(TcData));
             client.write((uint8_t*)LcData, sizeof(LcData));
@@ -374,67 +367,7 @@ void loop() {
             }
             break;
 
-          case 26: // SOL6
-            if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 1);
-              SOL6State = 0;
-            } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 1);
-              SOL6State = 1;
-            }
-            break;
-
-          case 27: // SOL7
-            if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 2);
-              SOL7State = 0;
-            } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 2);
-              SOL7State = 1;
-            }
-            break;
-
-          case 28: // SOL8
-            if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 3);
-              SOL8State = 0;
-            } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 3);
-              SOL8State = 1;
-            }
-            break;  
-
-          case 29: // SOL9
-            if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 4);
-              SOL9State = 0;
-            } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 4);
-              SOL9State = 1;
-            }
-            break;
-
-          case 30: // Heater
-            if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 5);
-              HeaterState = 0;
-            } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 5);
-              HeaterState = 1;
-            }
-            break;
-
-          case 31: // PMP3
-            if (state == 0) {
-              P1.writeDiscrete(LOW, 7, 6);
-              PMP3State = 0;
-            } else if (state == 1) {
-              P1.writeDiscrete(HIGH, 7, 6);
-              PMP3State = 1;
-            }
-            break;
-
-          case 32: // IGN1
+          case 26: // IGN1
             if (state == 0) {
               P1.writeDiscrete(LOW, 7, 7);
               IGN1State = 0;
@@ -444,7 +377,7 @@ void loop() {
             }
             break;
 
-          case 33: // IGN2
+          case 27: // IGN2
             if (state == 0) {
               P1.writeDiscrete(LOW, 7, 8);
               IGN2State = 0;

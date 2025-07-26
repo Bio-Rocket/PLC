@@ -31,11 +31,17 @@
   int8_t IGN1State = 0;
   int8_t IGN2State = 0;
 
+  int8_t CFV1State = 0;
+  int8_t CFV2State = 0;
+  int8_t CFV3State = 0;
+  int8_t CFV4State = 0;
+  int8_t CFV5State = 0;
+
   int16_t LC1, LC2, LC7;
-  int16_t PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts, PT13_counts, PT14_counts;
-  int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT13_pressure, PT14_pressure;
+  int16_t PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts;
+  int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure;
   int16_t TC1_data, TC2_data, TC3_data, TC4_data, TC5_data, TC6_data, TC7_data, TC8_data, TC9_data;
-  int16_t PtData[7];
+  int16_t PtData[5];
   int16_t TcData[9];
   int16_t LcData[3];
   int8_t valveData[18];
@@ -47,8 +53,8 @@
   const char P1_08ADL_2_CONFIG[] = { 0x40, 0x06 };
 
 void setup() {
-  while (!P1.init()){ 
-    ; //Wait for Modules to Sign on   
+  while (!P1.init()){
+    ; //Wait for Modules to Sign on
   }
 
   Ethernet.init(5);   // MKR ETH shield
@@ -149,16 +155,12 @@ void loop() {
             PT3_counts = P1.readAnalog(4, 3);
             PT4_counts = P1.readAnalog(4, 4);
             PT5_counts = P1.readAnalog(4, 5);
-            PT13_counts = P1.readAnalog(4, 6);
-            PT14_counts = P1.readAnalog(4, 7);
 
             PT1_pressure = (int16_t)(1000 * (10 * ((float)PT1_counts/8191)));
             PT2_pressure = (int16_t)(1000 * (10 * ((float)PT2_counts/8191)));
             PT3_pressure = (int16_t)(1000 * (10 * ((float)PT3_counts/8191)));
             PT4_pressure = (int16_t)(1000 * (10 * ((float)PT4_counts/8191)));
             PT5_pressure = (int16_t)(1000 * (10 * ((float)PT5_counts/8191)));
-            PT13_pressure = (int16_t)(1000 * (10 * ((float)PT13_counts/8191)));
-            PT14_pressure = (int16_t)(1000 * (10 * ((float)PT14_counts/8191)));
 
             TcData[0] = TC1_data;
             TcData[1] = TC2_data;
@@ -179,8 +181,6 @@ void loop() {
             PtData[2] = PT3_pressure;
             PtData[3] = PT4_pressure;
             PtData[4] = PT5_pressure;
-            PtData[5] = PT13_pressure;
-            PtData[6] = PT14_pressure;
 
             valveData[0] = PBV1State;
             valveData[1] = PBV2State;
@@ -200,6 +200,12 @@ void loop() {
             valveData[15] = SOL5State;
             valveData[16] = IGN1State;
             valveData[17] = IGN2State;
+
+            valveData[18] = CFV1State;
+            valveData[19] = CFV2State;
+            valveData[20] = CFV3State;
+            valveData[21] = CFV4State;
+            valveData[22] = CFV5State;
 
             client.write((uint8_t*)TcData, sizeof(TcData));
             client.write((uint8_t*)LcData, sizeof(LcData));
@@ -346,7 +352,7 @@ void loop() {
               SOL3State = 1;
             }
             break;
-          
+
           case 24: // SOL4
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 7);
@@ -386,7 +392,57 @@ void loop() {
               IGN2State = 1;
             }
             break;
-            
+
+          case 28: // COLD FLOW VALVE 1
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 1);
+              CFV1State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 1);
+              CFV1State = 1;
+            }
+            break;
+
+          case 29: // COLD FLOW VALVE 2
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 2);
+              CFV2State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 2);
+              CFV2State = 1;
+            }
+            break;
+
+          case 30: // COLD FLOW VALVE 3
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 3);
+              CFV3State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 3);
+              CFV3State = 1;
+            }
+            break;
+
+          case 31: // COLD FLOW VALVE 4
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 4);
+              CFV4State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 4);
+              CFV4State = 1;
+            }
+            break;
+
+          case 32: // COLD FLOW VALVE 5
+            if (state == 0) {
+              P1.writeDiscrete(LOW, 7, 5);
+              CFV5State = 0;
+            } else if (state == 1) {
+              P1.writeDiscrete(HIGH, 7, 5);
+              CFV5State = 1;
+            }
+            break;
+
           default:
             client.write("Unknown command");
             break;

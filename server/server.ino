@@ -32,10 +32,10 @@
   int8_t IGN2State = 0;
 
   int16_t LC1, LC2, LC7;
-  int16_t PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts, PT13_counts, PT14_counts;
-  int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure, PT13_pressure, PT14_pressure;
+  int16_t PT1_counts, PT2_counts, PT3_counts, PT4_counts, PT5_counts;
+  int16_t PT1_pressure, PT2_pressure, PT3_pressure, PT4_pressure, PT5_pressure;
   int16_t TC1_data, TC2_data, TC3_data, TC4_data, TC5_data, TC6_data, TC7_data, TC8_data, TC9_data;
-  int16_t PtData[7];
+  int16_t PtData[5];
   int16_t TcData[9];
   int16_t LcData[3];
   int8_t valveData[18];
@@ -149,16 +149,12 @@ void loop() {
             PT3_counts = P1.readAnalog(4, 3);
             PT4_counts = P1.readAnalog(4, 4);
             PT5_counts = P1.readAnalog(4, 5);
-            PT13_counts = P1.readAnalog(4, 6);
-            PT14_counts = P1.readAnalog(4, 7);
 
             PT1_pressure = (int16_t)(1000 * (10 * ((float)PT1_counts/8191)));
             PT2_pressure = (int16_t)(1000 * (10 * ((float)PT2_counts/8191)));
             PT3_pressure = (int16_t)(1000 * (10 * ((float)PT3_counts/8191)));
             PT4_pressure = (int16_t)(1000 * (10 * ((float)PT4_counts/8191)));
             PT5_pressure = (int16_t)(1000 * (10 * ((float)PT5_counts/8191)));
-            PT13_pressure = (int16_t)(1000 * (10 * ((float)PT13_counts/8191)));
-            PT14_pressure = (int16_t)(1000 * (10 * ((float)PT14_counts/8191)));
 
             TcData[0] = TC1_data;
             TcData[1] = TC2_data;
@@ -179,8 +175,6 @@ void loop() {
             PtData[2] = PT3_pressure;
             PtData[3] = PT4_pressure;
             PtData[4] = PT5_pressure;
-            PtData[5] = PT13_pressure;
-            PtData[6] = PT14_pressure;
 
             valveData[0] = PBV1State;
             valveData[1] = PBV2State;

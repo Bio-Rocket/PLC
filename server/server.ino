@@ -90,6 +90,12 @@ void setup() {
   P1.writeDiscrete(LOW, 7, 7);
   P1.writeDiscrete(LOW, 7, 8);
 
+  P1.writeDiscrete(LOW, 7, 1);
+  P1.writeDiscrete(LOW, 7, 2);
+  P1.writeDiscrete(LOW, 7, 3);
+  P1.writeDiscrete(LOW, 7, 4);
+  P1.writeDiscrete(LOW, 7, 5);
+
   // Open serial communications and wait for port to open:
   // Serial.begin(9600);
   // while (!Serial) {

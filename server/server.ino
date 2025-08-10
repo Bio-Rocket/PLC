@@ -383,7 +383,7 @@ void loop() {
 
 
           // STATE LIGHT COMMANDS, WHEN ONE COMES ON TURN THE OTHERS OFF.
-          case 27: // ABORT STATE
+          case 28: // ABORT STATE
             P1.writeDiscrete(HIGH, 7, 1);
             P1.writeDiscrete(LOW, 7, 2);
             P1.writeDiscrete(LOW, 7, 3);
@@ -391,7 +391,7 @@ void loop() {
             P1.writeDiscrete(LOW, 7, 5);
             P1.writeDiscrete(LOW, 7, 6);
             break;
-          case 28: // TEST STATE
+          case 29: // TEST STATE
             P1.writeDiscrete(LOW, 7, 1);
             P1.writeDiscrete(HIGH, 7, 2);
             P1.writeDiscrete(LOW, 7, 3);
@@ -399,7 +399,7 @@ void loop() {
             P1.writeDiscrete(LOW, 7, 5);
             P1.writeDiscrete(LOW, 7, 6);
             break;
-          case 29: // FILL STATE
+          case 30: // FILL STATE
             P1.writeDiscrete(LOW, 7, 1);
             P1.writeDiscrete(LOW, 7, 2);
             P1.writeDiscrete(HIGH, 7, 3);
@@ -407,7 +407,7 @@ void loop() {
             P1.writeDiscrete(LOW, 7, 5);
             P1.writeDiscrete(LOW, 7, 6);
             break;
-          case 30: // IGNITION STATE
+          case 31: // IGNITION STATE
             P1.writeDiscrete(LOW, 7, 1);
             P1.writeDiscrete(LOW, 7, 2);
             P1.writeDiscrete(LOW, 7, 3);
@@ -415,7 +415,7 @@ void loop() {
             P1.writeDiscrete(LOW, 7, 5);
             P1.writeDiscrete(LOW, 7, 6);
             break;
-          case 31: // FIRE STATE
+          case 32: // FIRE STATE
             P1.writeDiscrete(LOW, 7, 1);
             P1.writeDiscrete(LOW, 7, 2);
             P1.writeDiscrete(LOW, 7, 3);
@@ -423,7 +423,7 @@ void loop() {
             P1.writeDiscrete(HIGH, 7, 5);
             P1.writeDiscrete(LOW, 7, 6);
             break;
-          case 32: // POST FIRE STATE
+          case 33: // POST FIRE STATE
             P1.writeDiscrete(LOW, 7, 1);
             P1.writeDiscrete(LOW, 7, 2);
             P1.writeDiscrete(LOW, 7, 3);

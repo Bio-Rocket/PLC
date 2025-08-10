@@ -47,8 +47,8 @@
   const char P1_08ADL_2_CONFIG[] = { 0x40, 0x06 };
 
 void setup() {
-  while (!P1.init()){ 
-    ; //Wait for Modules to Sign on   
+  while (!P1.init()){
+    ; //Wait for Modules to Sign on
   }
 
   Ethernet.init(5);   // MKR ETH shield
@@ -340,7 +340,7 @@ void loop() {
               SOL3State = 1;
             }
             break;
-          
+
           case 24: // SOL4
             if (state == 0) {
               P1.writeDiscrete(LOW, 6, 7);
@@ -380,7 +380,58 @@ void loop() {
               IGN2State = 1;
             }
             break;
-            
+
+
+          // STATE LIGHT COMMANDS, WHEN ONE COMES ON TURN THE OTHERS OFF.
+          case 27: // ABORT STATE
+            P1.writeDiscrete(HIGH, 7, 1);
+            P1.writeDiscrete(LOW, 7, 2);
+            P1.writeDiscrete(LOW, 7, 3);
+            P1.writeDiscrete(LOW, 7, 4);
+            P1.writeDiscrete(LOW, 7, 5);
+            P1.writeDiscrete(LOW, 7, 6);
+            break;
+          case 28: // TEST STATE
+            P1.writeDiscrete(LOW, 7, 1);
+            P1.writeDiscrete(HIGH, 7, 2);
+            P1.writeDiscrete(LOW, 7, 3);
+            P1.writeDiscrete(LOW, 7, 4);
+            P1.writeDiscrete(LOW, 7, 5);
+            P1.writeDiscrete(LOW, 7, 6);
+            break;
+          case 29: // FILL STATE
+            P1.writeDiscrete(LOW, 7, 1);
+            P1.writeDiscrete(LOW, 7, 2);
+            P1.writeDiscrete(HIGH, 7, 3);
+            P1.writeDiscrete(LOW, 7, 4);
+            P1.writeDiscrete(LOW, 7, 5);
+            P1.writeDiscrete(LOW, 7, 6);
+            break;
+          case 30: // IGNITION STATE
+            P1.writeDiscrete(LOW, 7, 1);
+            P1.writeDiscrete(LOW, 7, 2);
+            P1.writeDiscrete(LOW, 7, 3);
+            P1.writeDiscrete(HIGH, 7, 4);
+            P1.writeDiscrete(LOW, 7, 5);
+            P1.writeDiscrete(LOW, 7, 6);
+            break;
+          case 31: // FIRE STATE
+            P1.writeDiscrete(LOW, 7, 1);
+            P1.writeDiscrete(LOW, 7, 2);
+            P1.writeDiscrete(LOW, 7, 3);
+            P1.writeDiscrete(LOW, 7, 4);
+            P1.writeDiscrete(HIGH, 7, 5);
+            P1.writeDiscrete(LOW, 7, 6);
+            break;
+          case 32: // POST FIRE STATE
+            P1.writeDiscrete(LOW, 7, 1);
+            P1.writeDiscrete(LOW, 7, 2);
+            P1.writeDiscrete(LOW, 7, 3);
+            P1.writeDiscrete(LOW, 7, 4);
+            P1.writeDiscrete(LOW, 7, 5);
+            P1.writeDiscrete(HIGH, 7, 6);
+            break;
+
           default:
             client.write("Unknown command");
             break;
